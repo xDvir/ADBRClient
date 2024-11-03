@@ -11,6 +11,9 @@ path = "src/lib.rs"
 name = "adbr"
 path = "src/main.rs"
 
+[profile.release]
+lto = true
+
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 termios = "0.3"

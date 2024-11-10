@@ -166,7 +166,7 @@ impl Client {
         Ok(local_mtime > remote_stat.mtime())
     }
 
-    async fn send_file_contents(&mut self, file: &mut tokio::fs::File) -> Result<u64, Box<dyn Error>> {
+    async fn send_file_contents(&mut self, file: &mut File) -> Result<u64, Box<dyn Error>> {
         let mut buffer = vec![0u8; 64 * 1024];
         let mut total_sent = 0u64;
         loop {

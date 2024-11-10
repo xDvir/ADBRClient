@@ -30,7 +30,7 @@ impl Client {
                     self.interactive_shell().await?;
                     Ok(String::new())
                 } else {
-                    let output = self.read_adb_full_response().await?;
+                    let output = self.read_print_and_collect_output().await?;
                     io::stdout().flush()?;
                     Ok(output)
                 }

@@ -10,7 +10,7 @@ impl Client {
         Ok(())
     }
 
-    pub(crate) async fn read_variable_length_response(&mut self, prefix: String) -> Result<String, Box<dyn Error>> {
+    pub async fn read_variable_length_response(&mut self, prefix: String) -> Result<String, Box<dyn Error>> {
         let mut data = prefix.into_bytes();
         let mut temp_buffer = [0u8; 1024];
 
@@ -31,7 +31,7 @@ impl Client {
     }
 
 
-    pub(crate) async fn read_exact_string(&mut self, length: usize) -> Result<String, Box<dyn Error>> {
+    pub async fn read_exact_string(&mut self, length: usize) -> Result<String, Box<dyn Error>> {
         if length == 0 {
             return Ok(String::new());
         }
@@ -86,6 +86,28 @@ impl Client {
         }
 
         Ok(())
+    }
+
+    pub async fn read_print_and_collect_output(&mut self) -> Result<String, Box<dyn Error>> {
+        let mut temp_buffer = [0u8; 1024];
+        let mut full_output = String::new();
+
+        loop {
+            match self.adb_stream.read(&mut temp_buffer).await {
+                Ok(0) => break,
+                Ok(n) => {
+                    let chunk = String::from_utf8_lossy(&temp_buffer[..n]);
+                    print!("{}", chunk);
+                    std::io::stdout().flush()?;
+                    full_output.push_str(&chunk);
+                },
+                Err(e) if e.kind() == ErrorKind::WouldBlock => break,
+                Err(e) if e.kind() == ErrorKind::Interrupted => continue,
+                Err(e) => return Err(e.into()),
+            }
+        }
+
+        Ok(full_output)
     }
 
     pub async fn has_more_data(&mut self) -> Result<bool, Box<dyn Error>> {

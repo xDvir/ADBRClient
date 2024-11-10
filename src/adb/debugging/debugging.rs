@@ -7,7 +7,7 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use chrono::Local;
 use indicatif::{ProgressBar, ProgressStyle};
 
-const LOGCAT_COMMAND_FORMAT: &str = "shell:export ANDROID_LOG_TAGS=\"''\"; exec logcat {}";
+const LOGCAT_COMMAND_FORMAT: &str = "export ANDROID_LOG_TAGS=\"''\"; exec logcat {}";
 const BUGREPORT_COMMAND: &str = "shell:bugreportz -p";
 const DEFAULT_BUGREPORT_FILENAME: &str = "bugreport.zip";
 const BUGREPORT_PREFIX: &str = "bugreport";
@@ -119,16 +119,8 @@ impl Client {
         }
     }
 
-    pub async fn adb_logcat(&mut self, device: DeviceTransport, args: &str) -> Result<(), Box<dyn Error>> {
-        let command = format!("{} {}", LOGCAT_COMMAND_FORMAT, args);
-
-        self.send_transport(device).await?;
-        self.send_adb_command(&command).await?;
-        let response = self.read_first_four_bytes_response().await?;
-        if response != OKAY {
-            let error_msg_str = self.read_adb_full_response().await?;
-            return Err(format!("Failed to unroot the device: {}", error_msg_str).into());
-        }
-        self.read_and_print_data().await
+    pub async fn adb_logcat(&mut self, device: DeviceTransport, args: &str) -> Result<String, Box<dyn Error>> {
+        let logcat_command = format!("{} {}", LOGCAT_COMMAND_FORMAT, args);
+        self.adb_shell(device, &logcat_command).await
     }
 }

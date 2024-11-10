@@ -304,13 +304,8 @@ async fn handle_commands(mut args: Vec<String>) {
             } else {
                 String::new()
             };
-            match client.adb_shell(device_type, &shell_args).await {
-                Ok(output) => {
-                    print!("{}", output);
-                },
-                Err(err) => {
-                    eprintln!("{}", err);
-                }
+            if let Err(err) = client.adb_shell(device_type, &shell_args).await {
+                eprintln!("{}", err);
             }
         }
         forward_command if forward_command.starts_with(USER_FORWARD_COMMAND) => {
@@ -710,11 +705,8 @@ async fn handle_commands(mut args: Vec<String>) {
         }
         logcat_cmd if logcat_cmd == USER_LOGCAT_COMMAND => {
             let logcat_args = command_args.join(" ");
-            match client.adb_logcat(device_type, &logcat_args).await {
-                Ok(()) => {}
-                Err(err) => {
-                    eprintln!("{}", err);
-                }
+            if let Err(err) = client.adb_logcat(device_type, &logcat_args).await {
+                eprintln!("{}", err);
             }
         }
         install_cmd if install_cmd.starts_with(USER_INSTALL_COMMAND) => {
@@ -742,14 +734,8 @@ async fn handle_commands(mut args: Vec<String>) {
                 eprintln!("Error: No APK file specified");
                 return;
             }
-
-            match client.adb_install(device_type, &apk_file, &install_flags).await {
-                Ok(result) => {
-                    print!("{}", result);
-                }
-                Err(err) => {
-                    eprintln!("{}", err);
-                }
+            if let Err(err) = client.adb_install(device_type, &apk_file, &install_flags).await {
+                eprintln!("{}", err);
             }
         }
         uninstall_cmd if uninstall_cmd.starts_with(USER_UNINSTALL_COMMAND) => {
@@ -777,13 +763,8 @@ async fn handle_commands(mut args: Vec<String>) {
                 return;
             }
 
-            match client.adb_uninstall(device_type.clone(), &package_name, &uninstall_flags).await {
-                Ok(result) => {
-                    print!("{}", result);
-                }
-                Err(err) => {
-                    eprintln!("{}", err);
-                }
+            if let Err(err) = client.adb_uninstall(device_type.clone(), &package_name, &uninstall_flags).await {
+                eprintln!("{}", err);
             }
         }
         reboot_command if reboot_command.starts_with(USER_REBOOT_COMMAND) => {

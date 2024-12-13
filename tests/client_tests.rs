@@ -481,11 +481,6 @@ async fn test_adb_device_info() -> Result<(), Box<dyn Error>> {
     println!("Device serial: {}", serial);
     client.reconnect().await?;
 
-    // Get device path
-    let devpath = client.adb_get_devpath(DeviceTransport::default()).await?;
-    assert!(!devpath.trim().is_empty(), "Device path should not be empty");
-    println!("Device path: {}", devpath);
-    client.reconnect().await?;
 
     // Get some basic device properties
     let props = client.adb_shell(

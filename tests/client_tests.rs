@@ -215,14 +215,13 @@ async fn test_adb_screencap() -> Result<(), Box<dyn Error>> {
 
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-    let metadata = std::fs::metadata("local_screenshot.png")?;
+    let metadata = fs::metadata("local_screenshot.png")?;
     assert!(metadata.len() > 0, "Screenshot file is empty");
 
     // Cleanup
-    std::fs::remove_file("local_screenshot.png")?;
+    fs::remove_file("local_screenshot.png")?;
 
     client.adb_shell(DeviceTransport::default(), "rm /data/local/tmp/screenshot.png").await?;
-    client.reconnect().await?;
 
     client.close().await;
 
@@ -234,7 +233,7 @@ async fn test_adb_battery_status() -> Result<(), Box<dyn Error>> {
     let mut client = Client::new(None, None).await?;
 
     let battery_info = client.adb_shell(DeviceTransport::default(), "dumpsys battery").await?;
-    client.reconnect().await?;
+
 
     // Verify basic battery information is present
     assert!(battery_info.contains("level:"));
@@ -252,7 +251,6 @@ async fn test_adb_package_manager() -> Result<(), Box<dyn Error>> {
 
     // List packages
     let packages = client.adb_shell(DeviceTransport::default(), "pm list packages -f").await?;
-    client.reconnect().await?;
 
     // Check that we have a meaningful number of packages (typical Android devices have >50)
     let package_count = packages.lines().filter(|line| line.starts_with("package:")).count();
@@ -358,12 +356,10 @@ async fn test_adb_error_handling() -> Result<(), Box<dyn Error>> {
         )
         .await;
 
-    client.reconnect().await?;
-
     assert!(result.is_err());
 
-    if std::path::Path::new(&nonexistent_file).exists() {
-        std::fs::remove_file(&nonexistent_file)?;
+    if Path::new(&nonexistent_file).exists() {
+        fs::remove_file(&nonexistent_file)?;
     }
 
     client.close().await;
@@ -389,7 +385,7 @@ async fn test_adb_push_single_file() -> Result<(), Box<dyn Error>> {
 
     client.reconnect().await?;
 
-    // Verify push result
+
     for (path, result) in result {
         match result {
             Ok(push_result) => {
@@ -401,7 +397,7 @@ async fn test_adb_push_single_file() -> Result<(), Box<dyn Error>> {
     }
 
     // Cleanup
-    std::fs::remove_file("test_file.txt")?;
+    fs::remove_file("test_file.txt")?;
     client.adb_shell(DeviceTransport::default(), "rm /data/local/tmp/test_file.txt").await?;
 
     client.close().await;
@@ -414,14 +410,13 @@ async fn test_adb_logcat_clear_and_dump() -> Result<(), Box<dyn Error>> {
 
     println!("Clearing logcat...");
     client.adb_logcat(DeviceTransport::default(), "-c").await?;
-    client.reconnect().await?;
+
 
     // Sleep briefly to ensure logcat clear takes effect
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-    // Get logcat content using shell command instead
-    let result = client.adb_shell(DeviceTransport::default(), "logcat -d").await?;
     client.reconnect().await?;
+    let result = client.adb_logcat(DeviceTransport::default(), "-d").await?;
 
     // Count the lines in the output
     let line_count = result.lines().count();

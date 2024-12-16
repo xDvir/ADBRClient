@@ -26,9 +26,6 @@ Coming Soon: A full Rust implementation of the ADB server!
 
 ### Option 1: Install from DEB Package (Recommended)
 ```bash
-# Install runtime dependencies
-sudo apt-get install -y libssl1.1
-
 # Download and install
 wget https://raw.githubusercontent.com/xDvir/ADBRClient/main/releases/adbr_1.0.0-1.deb
 sudo dpkg -i adbr_1.0.0-1.deb

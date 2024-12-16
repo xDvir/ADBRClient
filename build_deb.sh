@@ -12,7 +12,7 @@ cd "$(dirname "$0")"
 mkdir -p releases
 
 # Build the project
-RUSTFLAGS='-C target-cpu=x86-64' cargo build --release
+cargo build --release --target x86_64-unknown-linux-musl
 
 # Define package name and temporary directory
 PKG_NAME="adbr_${VERSION}"
@@ -29,7 +29,7 @@ Version: ${VERSION}
 Section: utils
 Priority: optional
 Architecture: amd64
-Depends: libc6 (>= 2.17)
+Depends:
 Maintainer: Your Name <your.email@example.com>
 Description: ADB Rust Implementation
  A Rust implementation of the Android Debug Bridge (ADB) client.
@@ -56,7 +56,7 @@ EOL
 chmod 755 ${TMP_DIR}/DEBIAN/postinst
 
 # Copy binary
-cp target/release/adbr ${TMP_DIR}/usr/local/bin/
+cp target/x86_64-unknown-linux-musl/release/adbr ${TMP_DIR}/usr/local/bin/
 
 # Build the package
 dpkg-deb --build ${TMP_DIR}

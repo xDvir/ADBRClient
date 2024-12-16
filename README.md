@@ -38,7 +38,13 @@ sudo apt-get install -f
 ```bash
 # Install build dependencies
 sudo apt-get update
-sudo apt-get install -y build-essential pkg-config libssl-dev
+sudo apt-get install -y build-essential pkg-config libssl-dev musl-tools
+
+# Install Rust (if not already installed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Add musl target
+rustup target add x86_64-unknown-linux-musl
 
 # Clone and build
 git clone https://github.com/xDvir/ADBRClient.git

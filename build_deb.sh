@@ -12,7 +12,7 @@ cd "$(dirname "$0")"
 mkdir -p releases
 
 # Build the project
-cargo build --release
+RUSTFLAGS='-C target-cpu=x86-64' cargo build --release
 
 # Define package name and temporary directory
 PKG_NAME="adbr_${VERSION}"
